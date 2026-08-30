@@ -1,0 +1,1 @@
+-- SAGE database schema will be added in Day 1 database setup.
