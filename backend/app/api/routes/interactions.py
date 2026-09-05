@@ -69,21 +69,22 @@ def create_interaction(
             detail="Student is not connected to this concept"
         )
 
-    # 4. Ask Gemini to analyze the answer
+    # 4. Ask AI to analyze the answer
     try:
         ai_result = analyze_answer(
             concept=interaction.concept,
             question=interaction.question,
             student_answer=interaction.student_answer
         )
-
         ai_data = json.loads(ai_result)
-
     except Exception as e:
-        raise HTTPException(
-            status_code=500,
-            detail=f"AI analysis failed: {str(e)}"
-        )
+        # Fallback if AI fails — don't crash the endpoint
+        ai_data = {
+            "correct": False,
+            "misconception": None,
+            "explanation": "SAGE could not analyze your answer right now. Please try again.",
+            "teacher_action": "Try answering the question again."
+        }
 
     # 5. Get AI analysis
     correct = ai_data.get(

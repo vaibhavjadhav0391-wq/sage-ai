@@ -1,4 +1,6 @@
 import os
+import re
+import json
 from pathlib import Path
 
 from dotenv import load_dotenv
@@ -50,7 +52,7 @@ Return ONLY valid JSON in this exact format:
 """
 
     response = client.chat.completions.create(
-        model="llama3-70b-8192",
+        model="llama-3.3-70b-versatile",
         messages=[
             {
                 "role": "user",
@@ -60,4 +62,11 @@ Return ONLY valid JSON in this exact format:
         temperature=0.2
     )
 
-    return response.choices[0].message.content
+    raw = response.choices[0].message.content
+
+    # Extract JSON even if AI wraps it in markdown or adds extra text
+    match = re.search(r'\{.*?\}', raw, re.DOTALL)
+    if match:
+        return match.group(0)
+
+    return raw
