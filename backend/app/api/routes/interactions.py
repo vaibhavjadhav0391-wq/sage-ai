@@ -78,6 +78,7 @@ def create_interaction(
         )
         ai_data = json.loads(ai_result)
     except Exception as e:
+        print(f"[INTERACTION ERROR] AI analysis failed: {e}", flush=True)
         # Fallback if AI fails — don't crash the endpoint
         ai_data = {
             "correct": False,
