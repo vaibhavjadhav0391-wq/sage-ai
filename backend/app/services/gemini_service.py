@@ -50,7 +50,7 @@ Return ONLY valid JSON in this exact format:
 """
 
     response = client.chat.completions.create(
-        model="openai/gpt-oss-20b",
+        model="llama3-70b-8192",
         messages=[
             {
                 "role": "user",
