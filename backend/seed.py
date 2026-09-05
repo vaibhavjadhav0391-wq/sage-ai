@@ -20,6 +20,17 @@ if not existing:
 else:
     print('Student already exists.')
 
+from app.models.lesson import Lesson
+existing_l = db.query(Lesson).filter(Lesson.id == 1).first()
+if not existing_l:
+    l = Lesson(id=1, student_id=1, topic='Java Arrays', level='beginner', status='active')
+    db.add(l)
+    db.flush()
+    print('Lesson added.')
+else:
+    print('Lesson already exists.')
+
+
 existing_c = db.query(Concept).filter(Concept.id == 1).first()
 if not existing_c:
     c = Concept(
