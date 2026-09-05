@@ -1,5 +1,9 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
 
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
 * {
   margin: 0;
   padding: 0;
@@ -9,9 +13,9 @@
 :root {
   --bg: #0a0a0f;
   --bg2: #111118;
-  --card: #16161f;
-  --card2: #1c1c28;
-  --border: rgba(255,255,255,0.08);
+  --card: rgba(22, 22, 31, 0.75);
+  --card2: rgba(28, 28, 40, 0.85);
+  --border: rgba(255,255,255,0.1);
   --purple: #7c3aed;
   --purple-light: #a78bfa;
   --purple-glow: rgba(124, 58, 237, 0.3);
@@ -24,7 +28,7 @@
 }
 
 body {
-  background: var(--bg);
+  background: transparent;
   color: var(--text);
   min-height: 100vh;
   -webkit-font-smoothing: antialiased;
@@ -45,7 +49,7 @@ body {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
-  background: var(--bg);
+  background: transparent;
   position: relative;
   overflow: hidden;
 }
