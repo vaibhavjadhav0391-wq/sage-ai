@@ -25,7 +25,7 @@ class Interaction(Base):
 
     misconception = Column(Text)
 
-    teacher_action = Column(String(100))
+    teacher_action = Column(Text)
 
     created_at = Column(
         TIMESTAMP,

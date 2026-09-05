@@ -19,6 +19,7 @@ class InteractionResponse(BaseModel):
     student_answer: str
     correct: bool
     misconception: str | None = None
+    explanation: str | None = None
     teacher_action: str | None = None
 
     class Config:

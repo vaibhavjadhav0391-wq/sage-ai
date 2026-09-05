@@ -1,121 +1,234 @@
-import { useState } from 'react'
-import heroImg from './assets/hero.png'
-import reactLogo from './assets/react.svg'
-import viteLogo from './assets/vite.svg'
+import { useEffect, useState } from 'react'
 import './App.css'
 
+const API_URL = 'http://127.0.0.1:8000'
+
 function App() {
-  const [count, setCount] = useState(0)
+  const [question, setQuestion] = useState(null)
+  const [answer, setAnswer] = useState('')
+  const [feedback, setFeedback] = useState(null)
+  const [loading, setLoading] = useState(false)
+
+  const studentId = 1
+  const conceptId = 1
+
+  const getNextQuestion = async () => {
+    try {
+      setLoading(true)
+
+      const response = await fetch(
+        `${API_URL}/api/adaptive/students/${studentId}/concepts/${conceptId}/next-question`
+      )
+
+      if (!response.ok) {
+        throw new Error('Failed to get question')
+      }
+
+      const data = await response.json()
+
+      setQuestion(data)
+      setFeedback(null)
+      setAnswer('')
+    } catch (error) {
+      console.error(error)
+      setFeedback({
+        type: 'error',
+        message: 'Could not connect to SAGE backend.'
+      })
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  useEffect(() => {
+    getNextQuestion()
+  }, [])
+
+  const submitAnswer = async () => {
+    if (!answer.trim() || !question) return
+
+    try {
+      setLoading(true)
+
+      const response = await fetch(
+        `${API_URL}/api/interactions`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            lesson_id: 1,
+            concept: question.concept,
+            question: question.question,
+            student_answer: answer,
+            correct: false,
+            misconception: null,
+            teacher_action: null
+          })
+        }
+      )
+
+      if (!response.ok) {
+        throw new Error('Failed to submit answer')
+      }
+
+      const data = await response.json()
+
+      setFeedback({
+  type: data.correct ? 'correct' : 'incorrect',
+  message: 'SAGE analyzed your answer.',
+  misconception: data.misconception,
+  explanation: data.explanation,
+  teacher_action: data.teacher_action
+})
+
+    } catch (error) {
+      console.error(error)
+
+      setFeedback({
+        type: 'error',
+        message: 'Something went wrong while analyzing your answer.'
+      })
+    } finally {
+      setLoading(false)
+    }
+  }
 
   return (
-    <>
-      <section id="center">
-        <div className="hero">
-          <img src={heroImg} className="base" width="170" height="179" alt="" />
-          <img src={reactLogo} className="framework" alt="React logo" />
-          <img src={viteLogo} className="vite" alt="Vite logo" />
+    <div className="app">
+
+      <header className="header">
+        <div className="logo">
+          <div className="logo-mark">S</div>
+          <div>
+            <h1>SAGE</h1>
+            <span>AI Teacher</span>
+          </div>
         </div>
-        <div>
-          <h1>Get started</h1>
-          <p>
-            Edit <code>src/App.jsx</code> and save to test <code>HMR</code>
+
+        <div className="student">
+          <span className="avatar">👩‍🎓</span>
+          <div>
+            <strong>Demo Student</strong>
+            <small>Beginner</small>
+          </div>
+        </div>
+      </header>
+
+      <main className="main">
+
+        <section className="welcome">
+          <p className="eyebrow">ADAPTIVE LEARNING</p>
+
+          <h2>
+            Learn at your own pace.
+          </h2>
+
+          <p className="subtitle">
+            SAGE understands your answers and adapts the next question
+            to your current level.
           </p>
-        </div>
-        <button
-          type="button"
-          className="counter"
-          onClick={() => setCount((count) => count + 1)}
-        >
-          Count is {count}
-        </button>
-      </section>
+        </section>
 
-      <div className="ticks"></div>
+        {question && (
+          <section className="learning-card">
 
-      <section id="next-steps">
-        <div id="docs">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#documentation-icon"></use>
-          </svg>
-          <h2>Documentation</h2>
-          <p>Your questions, answered</p>
-          <ul>
-            <li>
-              <a href="https://vite.dev/" target="_blank">
-                <img className="logo" src={viteLogo} alt="" />
-                Explore Vite
-              </a>
-            </li>
-            <li>
-              <a href="https://react.dev/" target="_blank">
-                <img className="button-icon" src={reactLogo} alt="" />
-                Learn more
-              </a>
-            </li>
-          </ul>
-        </div>
-        <div id="social">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#social-icon"></use>
-          </svg>
-          <h2>Connect with us</h2>
-          <p>Join the Vite community</p>
-          <ul>
-            <li>
-              <a href="https://github.com/vitejs/vite" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#github-icon"></use>
-                </svg>
-                GitHub
-              </a>
-            </li>
-            <li>
-              <a href="https://chat.vite.dev/" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#discord-icon"></use>
-                </svg>
-                Discord
-              </a>
-            </li>
-            <li>
-              <a href="https://x.com/vite_js" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#x-icon"></use>
-                </svg>
-                X.com
-              </a>
-            </li>
-            <li>
-              <a href="https://bsky.app/profile/vite.dev" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#bluesky-icon"></use>
-                </svg>
-                Bluesky
-              </a>
-            </li>
-          </ul>
-        </div>
-      </section>
+            <div className="progress-row">
+              <div>
+                <span className="label">CURRENT CONCEPT</span>
+                <h3>{question.concept}</h3>
+              </div>
 
-      <div className="ticks"></div>
-      <section id="spacer"></section>
-    </>
+              <div className="mastery">
+                <span>Mastery</span>
+                <strong>{question.mastery_score}%</strong>
+              </div>
+            </div>
+
+            <div className="difficulty">
+              NEXT LEVEL: {question.next_difficulty.toUpperCase()}
+            </div>
+
+            <div className="question-box">
+              <span className="label">QUESTION</span>
+              <h2>{question.question}</h2>
+            </div>
+
+            <div className="answer-section">
+              <label htmlFor="answer">Your answer</label>
+
+              <textarea
+                id="answer"
+                value={answer}
+                onChange={(e) => setAnswer(e.target.value)}
+                placeholder="Type your answer here..."
+                rows="5"
+              />
+
+              <button
+                onClick={submitAnswer}
+                disabled={loading || !answer.trim()}
+              >
+                {loading ? 'Analyzing...' : 'Submit Answer →'}
+              </button>
+            </div>
+
+          </section>
+        )}
+
+        {feedback && (
+          <section className={`feedback ${feedback.type}`}>
+
+            <div className="feedback-title">
+              {feedback.type === 'correct' && '✓ Correct'}
+              {feedback.type === 'incorrect' && '○ Let’s improve this'}
+              {feedback.type === 'error' && '⚠ Connection problem'}
+            </div>
+
+            {feedback.misconception && (
+  <p>
+    <strong>🧠 What SAGE noticed:</strong>{' '}
+    {feedback.misconception}
+  </p>
+)}
+
+{feedback.explanation && (
+  <p>
+    <strong>📖 Explanation:</strong>{' '}
+    {feedback.explanation}
+  </p>
+)}
+
+{feedback.teacher_action && (
+  <p>
+    <strong>👨‍🏫 Next step:</strong>{' '}
+    {feedback.teacher_action}
+  </p>
+)}
+
+<p>{feedback.message}</p>
+
+            {feedback.type !== 'error' && (
+              <button
+                className="next-button"
+                onClick={getNextQuestion}
+              >
+                Get Next Question →
+              </button>
+            )}
+
+          </section>
+        )}
+
+      </main>
+
+      <footer>
+        <span>SAGE AI Teacher</span>
+        <span>Adaptive learning powered by AI</span>
+      </footer>
+
+    </div>
   )
 }
 
